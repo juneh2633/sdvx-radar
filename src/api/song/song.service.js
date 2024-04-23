@@ -1,5 +1,6 @@
 const SongRepository = require("./song.repository");
 const inputData = require("../../../data/data");
+
 class SongService {
     /**
      * @type {SongRepository}
@@ -26,7 +27,7 @@ class SongService {
      * @param {number} level
      * @return {Promise<void>}
      */
-    async create(level) {
+    create = async (level) => {
         const conn = await this.pgPool.connect();
         try {
             conn.query("BEGIN");
@@ -49,6 +50,11 @@ class SongService {
         } finally {
             conn.release();
         }
+    };
+
+    async test() {
+        console.log("service OK");
+        await this.songRepository.test();
     }
 }
 module.exports = SongService;

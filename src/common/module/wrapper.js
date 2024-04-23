@@ -6,7 +6,7 @@ module.exports = (requestHandler) => {
         try {
             await requestHandler(req, res, next);
         } catch (err) {
-            return next;
+            return next(err);
         }
     };
 };

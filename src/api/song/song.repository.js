@@ -47,12 +47,12 @@ class SongRepository {
                 (song_id, type, level, max_exscore, notes, peak, tsumami, tricky, handtrip, onehand )
              VALUES
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            RETURNING
-                song_id,
-                title
             `,
             [songDao.songid, difficultiesDao.type, difficultiesDao.level, difficultiesDao.max_exscore, difficultiesDao.radar.notes, difficultiesDao.radar.peak, difficultiesDao.radar.tsumami, difficultiesDao.radar.tricky, difficultiesDao.radar.handtrip, difficultiesDao.radar.onehand]
         );
+    }
+    async test() {
+        console.log("repository ok");
     }
 }
 

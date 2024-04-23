@@ -11,13 +11,22 @@ class SongController {
         this.songService = songService;
     }
 
-    async createData(req, res) {
+    createData = async (req, res) => {
         await this.songService.create(req.body.level);
 
         res.status(201).send({
-            message: success,
+            message: "success",
         });
-    }
+    };
+
+    test = async (req, res) => {
+        console.log("controller OK");
+
+        await this.songService.test();
+        res.status(201).send({
+            message: "success",
+        });
+    };
 }
 
 module.exports = SongController;
