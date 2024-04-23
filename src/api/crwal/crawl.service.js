@@ -1,4 +1,5 @@
 const UnauthorizationException = require("../../common/exception/UnauthorizationException");
+const crawlSite = require("../../common/module/crawlSite");
 const getCookie = require("../../common/module/getCookie");
 const CrawlRepository = require("./crawl.repository");
 
@@ -24,7 +25,7 @@ module.exports = class CrawlService {
         if (cookie === "noCookie") {
             throw new UnauthorizationException("Login fail");
         }
-        console.log(cookie);
-        return cookie;
+        const data = await crawlSite(cookie);
+        return data;
     }
 };
