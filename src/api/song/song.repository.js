@@ -51,8 +51,38 @@ class SongRepository {
             [songDao.songid, difficultiesDao.type, difficultiesDao.level, difficultiesDao.max_exscore, difficultiesDao.radar.notes, difficultiesDao.radar.peak, difficultiesDao.radar.tsumami, difficultiesDao.radar.tricky, difficultiesDao.radar.handtrip, difficultiesDao.radar.onehand]
         );
     }
-    async test() {
-        console.log("repository ok");
+
+    /**
+     *
+     * @param {import('pg').PoolClient | undefined} conn
+     * @returns {Promise<any>}
+     */
+    async selectALL(conn = this.pool) {
+        const queryResult = await conn.query(
+            `
+            SELECT
+                song.title,
+                song.date,
+                difficulties.level,
+                difficulties.notes,
+                difficulties.peak,
+                difficulties.tsumami,
+                difficulties.tricky,
+                difficulties.handtrip,
+                difficulties.onehand
+            FROM
+                song
+            JOIN
+                difficulties
+            ON
+                song.song_id =difficulties.song_id
+            WHERE
+                difficulties.level >=18
+            ORDER BY
+                song.date
+            `
+        );
+        return queryResult.rows;
     }
 }
 
