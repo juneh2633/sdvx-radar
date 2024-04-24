@@ -7,6 +7,7 @@ const startPythonProcess = require("../../common/module/startPythonProcess");
 const AccountRepository = require("../account/account.repository");
 const SongRepository = require("../song/song.repository");
 const CrawlRepository = require("./crawl.repository");
+const NotFoundException = require("../../common/exception/NotFoundException");
 
 module.exports = class CrawlService {
     crawlRepository;
@@ -120,5 +121,24 @@ module.exports = class CrawlService {
         await startPythonProcess(pythonProcess);
 
         return;
+    }
+
+    /**
+     *
+     * @param {{
+     *  id: string
+     * }} getExpectedScoreDto
+     */
+    async getExpectedScore(getExpectedScoreDto) {
+        const user = await this.accountRepository.selectIdx(getExpectedScoreDto.id);
+        if (!user) {
+            throw new UnauthorizationException("NO account");
+        }
+        const userIdx = user.idx;
+        const songList = await this.songRepository.selectExpectedScore(userIdx);
+        if (songList.length === 0) {
+            throw new NotFoundException("NO Data");
+        }
+        return songList;
     }
 };

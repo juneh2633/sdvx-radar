@@ -24,4 +24,11 @@ module.exports = class CrawlController {
             message: "success",
         });
     };
+
+    getExpectedData = async (req, res) => {
+        const data = await this.crawlService.getExpectedScore(req.query);
+        res.status(200).send({
+            data: data,
+        });
+    };
 };

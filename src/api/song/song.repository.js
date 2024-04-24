@@ -130,16 +130,34 @@ class SongRepository {
      * @param {import('pg').PoolClient} conn
      * @returns {Promise<any>}
      */
-    async selectScoreWithSong(userIdx, conn = this.pool) {
+    async selectExpectedScore(userIdx, conn = this.pool) {
         const queryResult = await conn.query(
-            `DELETE
+            `SELECT
+                song.title,
+                song.bpm,
+                song.date,
+                difficulties.level,
+                difficulties.type,
+                score.score AS "currentScore",
+                score.expected_score AS "expectedScore"
             FROM
                 score
+            JOIN
+                difficulties
+            ON
+                difficulties.idx= score.difficulties_idx
+            JOIN
+                song
+            ON
+                difficulties.song_id= song.song_id
             WHERE
-                user_idx =$1
+                score.user_idx = $1
+            ORDER BY
+                (score.expected_score-score.score) DESC
             `,
             [userIdx]
         );
+        return queryResult.rows;
     }
 }
 
