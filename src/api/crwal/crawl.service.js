@@ -1,6 +1,7 @@
 const UnauthorizationException = require("../../common/exception/UnauthorizationException");
 const crawlSite = require("../../common/module/crawlSite");
 const getCookie = require("../../common/module/getCookie");
+const AccountRepository = require("../account/account.repository");
 const SongRepository = require("../song/song.repository");
 const CrawlRepository = require("./crawl.repository");
 
@@ -11,6 +12,11 @@ module.exports = class CrawlService {
      * @type {SongRepository}
      */
     songRepository;
+
+    /**
+     * @type {AccountRepository}
+     */
+    accountRepository;
     /**
      * @type {import("pg").Pool}
      */
@@ -20,11 +26,13 @@ module.exports = class CrawlService {
      *
      * @param {CrawlRepository} crawlRepository
      * @param {SongRepository} songRepository
+     * @param {AccountRepository} accountRepository
      * @param {imprt("pg").Pool} pgPool
      */
-    constructor(crawlRepository, songRepository, pgPool) {
+    constructor(crawlRepository, songRepository, accountRepository, pgPool) {
         this.crawlRepository = crawlRepository;
         this.songRepository = songRepository;
+        this.accountRepository = accountRepository;
         this.pgPool = pgPool;
     }
 
@@ -66,6 +74,28 @@ module.exports = class CrawlService {
                 return { ...oldestSong, score: crawledItem.score };
             })
             .filter((item) => item !== null);
+
+        let user = await this.accountRepository.selectIdx(createDto.id);
+        const client = await this.pgPool.connect();
+
+        try {
+            await client.query("BEGIN");
+            if (!user) {
+                user = await this.accountRepository.insert(createDto.id);
+            } else {
+                await this.songRepository.deleteScore(user.idx, client);
+            }
+
+            joinedData.forEach(async (element) => {
+                await this.songRepository.insertScore(user.idx, element.difficulties_idx, element.score);
+            });
+            await client.query("COMMIT");
+        } catch (err) {
+            await client.query("ROLLBACK");
+            throw err;
+        } finally {
+            client.release();
+        }
         return joinedData;
     }
 };

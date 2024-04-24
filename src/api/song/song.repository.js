@@ -63,6 +63,8 @@ class SongRepository {
             SELECT
                 song.title,
                 song.date,
+                song.song_id,
+                difficulties.idx AS "difficulties_idx",
                 difficulties.level,
                 difficulties.notes,
                 difficulties.peak,
@@ -83,6 +85,43 @@ class SongRepository {
             `
         );
         return queryResult.rows;
+    }
+
+    /**
+     *
+     * @param {number} userIdx
+     * @param {number} difficultiesIdx
+     * @param {number} score
+     * @param {import('pg').PoolClient} conn
+     * @returns {Promise<any>}
+     */
+    async insertScore(userIdx, difficultiesIdx, score, conn = this.pool) {
+        await conn.query(
+            `INSERT INTO score
+                (user_idx, difficulties_idx, score, expected_score)
+            VALUES
+                ($1, $2, $3, NULL)
+            `,
+            [userIdx, difficultiesIdx, score]
+        );
+    }
+
+    /**
+     *
+     * @param {number} userIdx
+     * @param {import('pg').PoolClient} conn
+     * @returns {Promise<any>}
+     */
+    async deleteScore(userIdx, conn = this.pool) {
+        await conn.query(
+            `DELETE
+            FROM
+                score
+            WHERE
+                user_idx =$1
+            `,
+            [userIdx]
+        );
     }
 }
 
