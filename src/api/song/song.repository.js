@@ -123,6 +123,24 @@ class SongRepository {
             [userIdx]
         );
     }
+
+    /**
+     *
+     * @param {number} userIdx
+     * @param {import('pg').PoolClient} conn
+     * @returns {Promise<any>}
+     */
+    async selectScoreWithSong(userIdx, conn = this.pool) {
+        const queryResult = await conn.query(
+            `DELETE
+            FROM
+                score
+            WHERE
+                user_idx =$1
+            `,
+            [userIdx]
+        );
+    }
 }
 
 module.exports = SongRepository;

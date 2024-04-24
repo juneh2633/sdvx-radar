@@ -51,10 +51,5 @@ class SongService {
             conn.release();
         }
     };
-
-    async test() {
-        console.log("service OK");
-        await this.songRepository.test();
-    }
 }
 module.exports = SongService;

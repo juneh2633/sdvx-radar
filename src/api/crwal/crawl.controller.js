@@ -12,9 +12,16 @@ module.exports = class CrawlController {
     }
 
     createData = async (req, res) => {
-        const result = await this.crawlService.create(req.body);
-        res.status(200).send({
-            data: result,
+        await this.crawlService.create(req.body);
+        res.status(201).send({
+            message: "success",
+        });
+    };
+
+    learnData = async (req, res) => {
+        await this.crawlService.learn(req.query);
+        res.status(201).send({
+            message: "success",
         });
     };
 };

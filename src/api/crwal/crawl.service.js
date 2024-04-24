@@ -1,6 +1,9 @@
+const { spawn } = require("child_process");
+const path = require("path");
 const UnauthorizationException = require("../../common/exception/UnauthorizationException");
 const crawlSite = require("../../common/module/crawlSite");
 const getCookie = require("../../common/module/getCookie");
+const startPythonProcess = require("../../common/module/startPythonProcess");
 const AccountRepository = require("../account/account.repository");
 const SongRepository = require("../song/song.repository");
 const CrawlRepository = require("./crawl.repository");
@@ -96,6 +99,26 @@ module.exports = class CrawlService {
         } finally {
             client.release();
         }
-        return joinedData;
+    }
+
+    /**
+     *
+     * @param {{
+     *  id: string
+     * }} learnDto
+     * @returns {Promise<void>}
+     */
+    async learn(learnDto) {
+        const user = await this.accountRepository.selectIdx(learnDto.id);
+        if (!user) {
+            throw new UnauthorizationException("NO account");
+        }
+        const user_idx = user.idx;
+        const scriptPath = path.resolve(__dirname, "../../../machineLearning/randomForest.py");
+        const pythonProcess = spawn("python", [scriptPath, user_idx.toString()]);
+
+        await startPythonProcess(pythonProcess);
+
+        return;
     }
 };
