@@ -1,6 +1,0 @@
-data
-node_modules
-.env
-src/.env
-machineLearning/.env
-.DS_Store
