@@ -2,14 +2,14 @@ import sys
 import os
 import psycopg2
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 from dotenv import load_dotenv
 
 def main(user_idx):
-    load_dotenv()  
+    load_dotenv()
     host = os.getenv('DB_HOST')
     dbname = os.getenv('DB_DATABASE')
     user = os.getenv('DB_USER')
@@ -41,33 +41,37 @@ def main(user_idx):
     cursor.execute(query, (user_idx,))
     data = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
 
+
     scaler = StandardScaler()
     X = scaler.fit_transform(data[['notes', 'peak', 'tsumami', 'tricky', 'handtrip', 'onehand']])
     y = data['score'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     param_grid = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [None, 10, 20],
-        'min_samples_leaf': [1, 2, 4],
-        'min_samples_split': [2, 5, 10]
+        'n_estimators': [50, 100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_leaf': [1, 2, 4, 6],
+        'min_samples_split': [2, 5, 10, 15]
     }
-    grid_search = GridSearchCV(estimator=RandomForestRegressor(random_state=42), param_grid=param_grid, cv=3, n_jobs=-1, verbose=1)
-    grid_search.fit(X_train, y_train)
+
+    grid_search = GridSearchCV(estimator=RandomForestRegressor(random_state=42), param_grid=param_grid, cv=5, n_jobs=-1, verbose=1)
+    grid_search.fit(X, y)  
     best_model = grid_search.best_estimator_
 
-    predicted_scores_full = best_model.predict(X)
-    update_query = "UPDATE score SET expected_score = %s WHERE idx = %s"
+    cv_results = grid_search.cv_results_
+    print(f"Best parameters: {grid_search.best_params_}")
+    print(f"Best cross-validation score (R^2): {grid_search.best_score_}")
 
-    # 트랜잭션 시작
+    
+    predicted_scores = best_model.predict(X)
+    update_query = "UPDATE score SET expected_score = %s WHERE idx = %s"
     try:
         cursor.execute("BEGIN;")
-        for idx, pred in zip(data['score_idx'], predicted_scores_full):
+        for idx, pred in zip(data['score_idx'], predicted_scores):
             cursor.execute(update_query, (int(pred), idx))
         cursor.execute("COMMIT;")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        cursor.execute("ROLLBACK;")  # 롤백 실행
-
+        cursor.execute("ROLLBACK;")  
     cursor.close()
     conn.close()
 
