@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { DifficultiesEntity } from './difficulties.entity';
 
-@Entity()
+@Entity('song')
 export class SongEntity {
   @PrimaryColumn()
   song_id: number;

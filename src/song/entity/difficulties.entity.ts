@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('difficulties')
 export class DifficultiesEntity {
   @PrimaryGeneratedColumn()
   idx: number;
@@ -41,6 +41,7 @@ export class DifficultiesEntity {
 
   @Column({ type: 'int', nullable: true })
   onehand: number | null;
+
   @ManyToOne(() => SongEntity, (song) => song.difficulties)
   @JoinColumn({ name: 'song_id' })
   song: SongEntity;
