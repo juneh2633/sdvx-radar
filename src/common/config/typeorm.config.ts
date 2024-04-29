@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { AccountEntity } from 'src/auth/entity/account.entity';
+import { ScoreEntity } from 'src/score/entity/score.entity';
+import { DifficultiesEntity } from 'src/song/entity/difficulties.entity';
+import { SongEntity } from 'src/song/entity/song.entity';
 
 @Injectable()
 export class TypeOrmConfigService {
@@ -14,7 +18,7 @@ export class TypeOrmConfigService {
       username: this.configService.get<string>('DB_USER'),
       password: this.configService.get<string>('DB_PASSWORD'),
       database: this.configService.get<string>('DB_DATABASE'),
-      entities: [],
+      entities: [SongEntity, DifficultiesEntity, AccountEntity, ScoreEntity],
     };
   }
 }
