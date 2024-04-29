@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './common/config/typeorm.config';
+import { ScoreService } from './score/score.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { TypeOrmConfigService } from './common/config/typeorm.config';
     AuthModule,
   ],
   controllers: [AppController, SongController],
-  providers: [AppService, AuthService, SongService],
+  providers: [AppService, AuthService, SongService, ScoreService],
 })
 export class AppModule {}

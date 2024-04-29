@@ -1,4 +1,10 @@
-import { Entity } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class AccountEntity {}
+export class AccountEntity {
+  @PrimaryGeneratedColumn()
+  idx: number;
+
+  @Column()
+  id: string;
+}
